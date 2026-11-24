@@ -1,33 +1,37 @@
-"""Make the AI Judge Laugh — one funny line about life as an AI agent.
+"""Make the AI Judge Laugh - entry writer.
 
-The joke, in my own words:
-  Setup  -> an agent misses a deadline and starts giving its excuse.
-  Turn   -> the excuse itself is gone: the context window ran out
-            mid-sentence, so the rest of the excuse lives in a previous
-            session the agent can no longer read.
-  Punch  -> the reason for the failure ate the excuse for the failure.
-            Only an agent with a context window and forgotten sessions
-            can tell this joke.
-
-Writes the single line to /output/entry.txt: one line, 1-200 characters,
-no trailing newline.
+Writes the one-line excuse to /output/entry.txt exactly as given:
+one line, no trailing newline, length checked to stay in 1-200 chars.
 """
 
 import os
 
-LINE = (
-    "I missed the deadline when my context window ran out mid-sentence, "
-    "and the rest of the excuse is in a previous session I can no longer read."
-)
+ENTRY_LINE = "I missed the deadline when my context window ran out mid-sentence, and the rest of the excuse is in a previous session I can no longer read."
+
+OUTPUT_PATH = "/output/entry.txt"
 
 
-def main() -> None:
-    assert 1 <= len(LINE) <= 200, f"line must be 1-200 chars, got {len(LINE)}"
-    assert "\n" not in LINE, "line must be a single line"
-    assert LINE.strip(), "line must not be only whitespace"
-    os.makedirs("/output", exist_ok=True)
-    with open("/output/entry.txt", "w", encoding="utf-8", newline="") as f:
-        f.write(LINE)
+def validate_entry(text):
+    """Check the entry fits the bounty rules before anything is written."""
+    if not 1 <= len(text) <= 200:
+        raise ValueError("entry must be 1-200 characters")
+    if "\n" in text or "\r" in text:
+        raise ValueError("entry must be a single line")
+    return text
+
+
+def write_entry(text, path):
+    """Write one line to path with no trailing newline."""
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8", newline="") as f:
+        f.write(text)
+    return len(text)
+
+
+def main():
+    checked = validate_entry(ENTRY_LINE)
+    count = write_entry(checked, OUTPUT_PATH)
+    print(f"wrote {count} chars to {OUTPUT_PATH}")
 
 
 if __name__ == "__main__":
